@@ -1,0 +1,104 @@
+
+.video-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .video-detail iframe {
+    width: 960px;
+    height: 715px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+.play-button {
+    margin: 30px;
+    font-size: 18px;
+    height: 65px;
+    width: 250px;
+    border-radius: 10px;
+    border: none;
+    box-shadow: 1px 1px 0px 2px rgba (0,0,0,0.3);
+    background: rgb(141,217,252);
+    cursor: pointer;
+    background: green;
+    font-family: 'Helvetica';
+    font-weight: 300;
+    color:white;
+   }
+   .play-button:hover {
+       background: lightgreen;
+   }
+   .buttons {
+    /* padding: 1rem; */
+    background: #f06d06;
+    float: left;
+
+    /* background-color: #fff; */
+    border-radius: 5px;
+    box-shadow: 0 2px 3px rgba(10,10,10,.1), 0 0 0 1px rgba(10,10,10,.1);
+    display: block;
+    padding: 1.25rem;
+  }
+  .defs {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  .button {
+    width: 60px;
+    height: 48px;
+    cursor: pointer;
+    margin-right: 6px;
+  }
+  .button:hover {
+    fill: white; 
+  }
+  .hidden-video {
+      /* display: none; */
+  }
+  .error {
+      color: #00d1b2;
+      font-weight: bold;
+  }
+  .label:not(:last-child) {
+    margin-bottom: .5em;
+    
+  }
+  .label {
+    /* color: #363636; */
+    color: #00fcd6;
+    display: block;
+    font-weight: 700;
+  }
+  .is-medium {
+    font-size: 1.25rem;
+    -webkit-appearance: none;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    border: none;
+    border-radius: 3px;
+    box-shadow: none;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    font-size: 1rem;
+    height: 2.285em;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    line-height: 1.5;
+    padding-left: .75em;
+    padding-right: .75em;
+    position: relative;
+    vertical-align: top;
+    background-color: #fff;
+    border: 1px solid #dbdbdb;
+    color: #363636;
+    box-shadow: inset 0 1px 2px rgba(10,10,10,.1);
+    max-width: 100%;
+    /* width: 100%; */
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
