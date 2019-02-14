@@ -5,7 +5,7 @@ export default props => {
     return (
         // Pass on our props
         <Menu {...props}>
-            <a className="menu-item" href="/">
+            <a className="menu-item" href="/j7r2ycpnu8k">
                 Song 1
       </a>
 

@@ -6,8 +6,8 @@
   }
   
   .video-detail iframe {
-    width: 960px;
-    height: 715px;
+    /* width: 960px; */
+    /* height: 715px; */
     margin-top: 50px;
     margin-bottom: 50px;
   }
@@ -102,3 +102,14 @@
     /* width: 100%; */
     font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
   }
+/* 
+  #play-button-shape.default {
+    fill: #010002;
+  }
+  #play-button-shape.active {
+    fill: #ffeb3b;
+  } */
+
+  button.ytp-large-play-button.ytp-button { 
+    display: none !important;
+}

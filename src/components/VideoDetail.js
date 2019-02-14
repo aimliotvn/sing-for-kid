@@ -3,21 +3,42 @@
 import React, { Component } from 'react'
 import type { ContextRouter } from 'react-router-dom'
 import './VideoDetail.css'
+import $ from 'jquery'
 
 let loadYT
 let player
-
 let player2
-const path={
-    fill:'#010002'
+
+let triggerByClick = false;
+
+let preloading1 = false;
+let preloading2 = false;
+
+let actions = ["play", "pause"];
+
+let syncObj = {
+    time: 0,
+    video2: {
+        time: 0,
+        action: actions[0]
+    }
 }
+
 class VideoDetail extends Component<ContextRouter, State> {
 
     constructor(props) {
         super(props);
         this.state = {
             beginAt: 0,
-            error : ''
+            error : '',
+            playBtnColor: 'default',
+            startPosInputDisabled: false,
+            
+            timeout: '7100',
+            playbackRate: '0.85',
+
+            timeSeries: []
+
         };
     }
 
@@ -39,16 +60,32 @@ class VideoDetail extends Component<ContextRouter, State> {
                 events: {
                     onStateChange: this.onPlayerStateChange,
                     onReady: this.onPlayerReady
+                },
+                playerVars: {
+                    controls : 1,
+                    disablekb: 1,
+                    fs: 0,
+                    modestbranding: 1,
+                    rel: 0
+                    // origin: 'mydomain'
                 }
             })
 
             player2 = new YT.Player(this.youtubePlayerAnchor2, {
                 height: this.props.height || 390,
                 width: this.props.width || 640,
-                videoId: this.props.match.params.id,
+                // videoId: this.props.match.params.id,
+                videoId: '2t4O3jrFIEo',
                 events: {
-                    onStateChange: this.onPlayerStateChange,
-                    onReady: this.onPlayerReady
+                    onStateChange: this.onPlayer2StateChange,
+                    onReady: this.onPlayer2Ready
+                },
+                playerVars: {
+                    controls : 1,
+                    disablekb: 1,
+                    fs: 0,
+                    modestbranding: 1,
+                    rel: 0
                 }
             })
         })
@@ -58,10 +95,50 @@ class VideoDetail extends Component<ContextRouter, State> {
         // if (typeof this.props.onStateChange === 'function') {
             // this.props.onStateChange(e)
         // }
+        console.log("Player 1 state: ", e.data);
         switch (e.data) {
+            case window.YT.PlayerState.PLAYING:
+            
+                if (!triggerByClick) {
+                    player.pauseVideo();
+                    player2.playVideo();
+                }
+                break;
+            case window.YT.PlayerState.PAUSED:
+                break;
+            case window.YT.PlayerState.BUFFERING:
+                preloading1 = true;
+                break;
+            case window.YT.PlayerState.CUED:
+                break;
             case window.YT.PlayerState.ENDED:
-                console.log(e.data);
-        break;        
+                break;
+            default:
+                break;
+        }
+    }
+
+    onPlayer2StateChange = (e) => {
+        console.log("Player 2 state: ", e.data);
+        switch (e.data) {
+            case window.YT.PlayerState.PLAYING:
+                if (!triggerByClick) {
+                    player.seekTo(0);
+                    player.playVideo();
+                    triggerByClick = true;
+                }
+                break;
+            case window.YT.PlayerState.PAUSED:
+                break;
+            case window.YT.PlayerState.BUFFERING:
+                preloading2 = true;
+                break;
+            case window.YT.PlayerState.CUED:
+                break;
+            case window.YT.PlayerState.ENDED:
+                break;
+            default:
+                break;
         }
     }
 
@@ -71,13 +148,25 @@ class VideoDetail extends Component<ContextRouter, State> {
         var that = this;
         var playButton = document.getElementById("play-button");
         playButton.addEventListener("click", function() {
-            player.playVideo();
+
+            triggerByClick = true;
+            that.setState({startPosInputDisabled: true});
+
+            console.log("Player 2 is going to seek at seconds: ", that.state.beginAt);
             if (that.state.beginAt > 0) {
                 player2.seekTo(that.state.beginAt);
-            } else {
+                player2.pauseVideo();
+            } else if (that.state.beginAt !== 0) {
                 that.setState({ error: 'There is a probblem with the Playback Begin Position.'});
             }
+            player.playVideo();
+            var startPlayer2Video = setTimeout(function() {
+                player2.setPlaybackRate(that.state.playbackrate);
+                player2.playVideo();
+                clearTimeout(startPlayer2Video);
+            }, that.state.timeout);
             
+            // Dem sao - rate 0.85 - timeout 7100
         });
         
         var pauseButton = document.getElementById("pause-button");
@@ -87,17 +176,35 @@ class VideoDetail extends Component<ContextRouter, State> {
         });
     }
 
-    handleChange = (e) => {
+    onPlayer2Ready = (e) => {
+    }
 
-        this.setState({
-            beginAt: parseInt(e.target.value) ? parseInt(e.target.value) : ''
-        });
+    handleChange = (e) => {
+        if (e.target.id === "beginAt") {
+            this.setState({
+                beginAt: parseInt(e.target.value) ? parseInt(e.target.value) : ''
+            });
+        } else if (e.target.id === "timeout") {
+            this.setState({
+                timeout: parseInt(e.target.value) ? parseInt(e.target.value) : ''
+            });
+        } else if (e.target.id === "playbackRate") {
+            this.setState({
+                playbackRate: parseInt(e.target.value) ? parseInt(e.target.value) : ''
+            });
+        }
+    }
+
+    playVideo = (p) => {
+        p.playVideo();
+    }
+
+    stopVideo = (p) => {
+        p.stopVideo();
     }
 
     render() {
         return (
-            // <section className='youtubeComponent-wrapper'>
-            
             <div className="video-detail">
                 <svg className="defs">
                     <defs>
@@ -114,9 +221,13 @@ class VideoDetail extends Component<ContextRouter, State> {
                 <div ref={(r) => { this.youtubePlayerAnchor = r }}></div>
                 
                 <div className="buttons box">
-                    <label className="label">Enter The Begin Position In Video 2</label>
-                    <input type='text' className='is-medium' placeholder={this.state.beginAt} onChange={this.handleChange}/>
-                    <h1>{this.state.beginAt != '' ? "Right now your input is: " + this.state.beginAt : ''}</h1>
+                    <label className="label">Enter The Begin Position Of Video 2</label>
+                    <input id="beginAt" disabled={this.state.startPosInputDisabled} type='text' className='is-medium' value={this.state.beginAt} onChange={this.handleChange}/>
+                    <label className="label">Or Wait For X Mili Seconds Before Play Video 2</label>
+                    <input id="timeout" disabled={this.state.TimeOutInputDisabled} type='text' className='is-medium' value={this.state.timeout} onChange={this.handleChange}/>
+                    <label className="label">Prefer Playback Rate</label>
+                    <input id="playbackRate" disabled={this.state.playbackRate} type='text' className='is-medium' value={this.state.playbackRate} onChange={this.handleChange}/>
+                    <h1>{this.state.beginAt !== '' ? "Song will be played at seconds: " + this.state.beginAt : ''}</h1>
                     <svg className="button" id="play-button">
                         <use xlinkHref="#play-button-shape"/>
                     </svg>
@@ -129,21 +240,12 @@ class VideoDetail extends Component<ContextRouter, State> {
                     <div className='error'>{this.state.error !== '' ? this.state.error : ''}</div>
                 </div>
                 <div className="hidden-video" ref={(r) => { this.youtubePlayerAnchor2 = r }}></div>
-                {/* </section> */}
-                {/* <button className="play-button">Play Video</button> */}
-                {/* <div className="container">
-        <h1 className="intro">Binding data with React</h1>
-        <div className="box">
-          <label className="label">Enter text here</label>
-          <input className="input is-medium" type='text' id='input' value={this.state.value} onChange={this.handleChange} />
-          <p className="input-value">The value of the input is: <span className="highlight">{this.state.value}</span></p>
-        </div>
-      </div> */}
             </div>
-
         )
     }
 }
+
+export default VideoDetail
 
 // VideoDetail.propTypes = {
 //     YTid: PropTypes.string.required,
@@ -157,4 +259,10 @@ class VideoDetail extends Component<ContextRouter, State> {
 // https://codepen.io/lionelB/pen/gckDu
 // https://codepen.io/philbaker/pen/XgGLVj
 // router https://codesandbox.io/s/vvoqvk78?from-embed
-export default VideoDetail
+
+// We recommend that you set this parameter to false while the user drags the mouse along a video progress bar and then set it to true when the user releases the mouse. This approach lets a user scroll to different points of a video without requesting new video streams by scrolling past unbuffered points in the video. When the user releases the mouse button, the player advances to the desired point in the video and requests a new video stream if necessary.
+// Youtube Get Current Second Api Demo. https://gist.github.com/mangreen/607fcc6c84379c2025ae
+// https://stackoverflow.com/questions/19896430/keeping-two-youtube-videos-in-sync-with-each-other
+// https://stackoverflow.com/questions/42716093/youtube-api-websockets-make-sure-two-videos-are-in-sync-video-1-pauses-when-v?rq=1
+
+// https://stackoverflow.com/questions/36403101/toggle-class-in-react/36404061
