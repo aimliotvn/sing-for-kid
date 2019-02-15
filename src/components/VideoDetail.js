@@ -14,30 +14,34 @@ let triggerByClick = false;
 let preloading1 = false;
 let preloading2 = false;
 
-let actions = ["play", "pause"];
+const actions = ["play", "pause"];
 
-let syncObj = {
-    time: 0,
-    video2: {
-        time: 0,
-        action: actions[0]
-    }
-}
+// let syncObj = {
+//     time: 0,
+//     video2: {
+//         time: 0,
+//         action: actions[0]
+//     }
+// }
 
 class VideoDetail extends Component<ContextRouter, State> {
 
     constructor(props) {
         super(props);
         this.state = {
-            beginAt: 0,
             error : '',
             playBtnColor: 'default',
-            startPosInputDisabled: false,
             
             timeout: '7100',
             playbackRate: '0.85',
 
-            timeSeries: []
+            video1time: 0,
+            video2time: 0,
+            actionType: 0,
+            timeSeries: [],
+
+            video1volume: 0,
+            video2volume: 0,
 
         };
     }
@@ -70,7 +74,7 @@ class VideoDetail extends Component<ContextRouter, State> {
                     // origin: 'mydomain'
                 }
             })
-
+            
             player2 = new YT.Player(this.youtubePlayerAnchor2, {
                 height: this.props.height || 390,
                 width: this.props.width || 640,
@@ -98,7 +102,6 @@ class VideoDetail extends Component<ContextRouter, State> {
         console.log("Player 1 state: ", e.data);
         switch (e.data) {
             case window.YT.PlayerState.PLAYING:
-            
                 if (!triggerByClick) {
                     player.pauseVideo();
                     player2.playVideo();
@@ -119,10 +122,11 @@ class VideoDetail extends Component<ContextRouter, State> {
     }
 
     onPlayer2StateChange = (e) => {
+        
         console.log("Player 2 state: ", e.data);
         switch (e.data) {
             case window.YT.PlayerState.PLAYING:
-                if (!triggerByClick) {
+                if (e.target.a.id !== "vocal-video" && !triggerByClick) {
                     player.seekTo(0);
                     player.playVideo();
                     triggerByClick = true;
@@ -143,6 +147,10 @@ class VideoDetail extends Component<ContextRouter, State> {
     }
 
     onPlayerReady = (e) => {
+
+        var crntVideo1Volume = player.getVolume();
+        debugger;
+        this.setState({video1volume: crntVideo1Volume});
         
         // bind events
         var that = this;
@@ -150,21 +158,22 @@ class VideoDetail extends Component<ContextRouter, State> {
         playButton.addEventListener("click", function() {
 
             triggerByClick = true;
-            that.setState({startPosInputDisabled: true});
+            // that.setState({startPosInputDisabled: true});
 
-            console.log("Player 2 is going to seek at seconds: ", that.state.beginAt);
-            if (that.state.beginAt > 0) {
-                player2.seekTo(that.state.beginAt);
-                player2.pauseVideo();
-            } else if (that.state.beginAt !== 0) {
-                that.setState({ error: 'There is a probblem with the Playback Begin Position.'});
-            }
+            // console.log("Player 2 is going to seek at seconds: ", that.state.beginAt);
+            // if (that.state.beginAt > 0) {
+            //     player2.seekTo(that.state.beginAt);
+            //     player2.pauseVideo();
+            // } else if (that.state.beginAt !== 0) {
+            //     that.setState({ error: 'There is a probblem with the Playback Begin Position.'});
+            // }
             player.playVideo();
-            var startPlayer2Video = setTimeout(function() {
-                player2.setPlaybackRate(that.state.playbackrate);
-                player2.playVideo();
-                clearTimeout(startPlayer2Video);
-            }, that.state.timeout);
+            that.proceed();
+            // var startPlayer2Video = setTimeout(function() {
+            //     player2.setPlaybackRate(that.state.playbackrate);
+            //     player2.playVideo();
+            //     clearTimeout(startPlayer2Video);
+            // }, that.state.timeout);
             
             // Dem sao - rate 0.85 - timeout 7100
         });
@@ -177,26 +186,101 @@ class VideoDetail extends Component<ContextRouter, State> {
     }
 
     onPlayer2Ready = (e) => {
+        var crntVideo2Volume = player2.getVolume();
+        this.setState({video2volume: crntVideo2Volume});
     }
 
     handleChange = (e) => {
-        if (e.target.id === "beginAt") {
+        if (e.target.id === "video1time") {
             this.setState({
-                beginAt: parseInt(e.target.value) ? parseInt(e.target.value) : ''
+                video1time: parseInt(e.target.value) ? parseInt(e.target.value) : ''
             });
-        } else if (e.target.id === "timeout") {
+        } else if (e.target.id === "video2time") {
             this.setState({
-                timeout: parseInt(e.target.value) ? parseInt(e.target.value) : ''
+                video2time: parseInt(e.target.value) ? parseInt(e.target.value) : ''
             });
-        } else if (e.target.id === "playbackRate") {
+        } else if (e.target.id === "actionType") {
             this.setState({
-                playbackRate: parseInt(e.target.value) ? parseInt(e.target.value) : ''
+                actionType: parseInt(e.target.value)
             });
         }
     }
 
+    handleVolumeChange = (e) => {
+        var targetVolume = parseInt(e.target.value);
+        if (e.target.id === "volumeVideo2Range") {
+            this.setState({
+                video2volume: targetVolume
+            });
+            player2.setVolume(targetVolume);
+        }
+        if (e.target.id === "volumeVideo1Range") {
+            this.setState({
+                video1volume: targetVolume
+            });
+            player.setVolume(targetVolume);
+        }
+        
+    }
+
+    addTimeSeries = () => {
+        const {video1time, video2time, actionType, timeSeries} = this.state;
+        alert(actionType);
+        console.log(video1time);
+
+        let syncObj = {
+            time: 0,
+            video2: {
+                time: 0,
+                action: actions[0]
+            }
+        }
+        syncObj.time = video1time;
+        syncObj.video2.time = video2time;
+        syncObj.video2.action = actions[actionType] ? actions[actionType] : syncObj.video2.action;
+        timeSeries.push(syncObj);
+        this.setState({timeSeries: timeSeries});
+    }
+
+    proceed = () => {
+
+        const { timeSeries } = this.state;
+        
+        for (var i = 0; i < timeSeries.length; i++) {
+            console.log(timeSeries[i]);
+            this.doSetTimeout(timeSeries, i);
+        }
+    }
+
+    doSetTimeout = (timeSeries, i) => {
+
+        var that = this;
+        var timeoutObj = setTimeout(function() {
+            that.syncVideo(timeSeries[i].video2.time, timeSeries[i].video2.action);
+            clearTimeout(timeoutObj); 
+        }, (timeSeries[i].time + .4) * 1000);
+    }
+
     playVideo = (p) => {
         p.playVideo();
+    }
+
+    syncVideo = (time, action) => {
+        if (action === "play") {
+            this.playVideoAt(time);
+        }
+        if (action === "pause") {
+            this.pauseVideo();
+        }
+    }
+
+    playVideoAt = (time) => {
+        player2.seekTo(time);
+        player2.playVideo();
+    }
+
+    pauseVideo = () => {
+        player2.pauseVideo();
     }
 
     stopVideo = (p) => {
@@ -218,16 +302,18 @@ class VideoDetail extends Component<ContextRouter, State> {
         S74.299,143,128.75,143s98.75,44.299,98.75,98.75S183.201,340.5,128.75,340.5z"/>
                     </defs>
                 </svg>
-                <div ref={(r) => { this.youtubePlayerAnchor = r }}></div>
-                
+                <div id="lyric-video" ref={(r) => { this.youtubePlayerAnchor = r }}></div>
+                <div>{this.state.timeSeries.length !== 0 ? JSON.stringify(this.state.timeSeries) : ''}</div>
                 <div className="buttons box">
-                    <label className="label">Enter The Begin Position Of Video 2</label>
-                    <input id="beginAt" disabled={this.state.startPosInputDisabled} type='text' className='is-medium' value={this.state.beginAt} onChange={this.handleChange}/>
-                    <label className="label">Or Wait For X Mili Seconds Before Play Video 2</label>
-                    <input id="timeout" disabled={this.state.TimeOutInputDisabled} type='text' className='is-medium' value={this.state.timeout} onChange={this.handleChange}/>
-                    <label className="label">Prefer Playback Rate</label>
-                    <input id="playbackRate" disabled={this.state.playbackRate} type='text' className='is-medium' value={this.state.playbackRate} onChange={this.handleChange}/>
-                    <h1>{this.state.beginAt !== '' ? "Song will be played at seconds: " + this.state.beginAt : ''}</h1>
+                    <label className="label">Video 1 Time</label>
+                    <input id="video1time" type='text' className='is-medium' onChange={this.handleChange}/>
+                    <label className="label">Video 2 Time</label>
+                    <input id="video2time" type='text' className='is-medium' onChange={this.handleChange}/>
+                    <label className="label">Action Type</label>
+                    <input id="actionType" type='text' className='is-medium' onChange={this.handleChange}/>
+                    <button onClick={this.addTimeSeries}>
+                        ADD
+                    </button>
                     <svg className="button" id="play-button">
                         <use xlinkHref="#play-button-shape"/>
                     </svg>
@@ -237,9 +323,31 @@ class VideoDetail extends Component<ContextRouter, State> {
                     <svg viewBox="0 50 1 400" className="button" id="toggle-button" preserveAspectRatio="xMinYMin meet">
                         <use xlinkHref="#toggle-button-shape" width="100"/>
                     </svg>
+                    <div class="slidecontainer">
+                        <div>Video 1 volume: {this.state.video1volume}</div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={this.state.video1volume}
+                            onChange={this.handleVolumeChange}
+                            class="slider"
+                            id="volumeVideo1Range"/>
+                    </div>
+                    <div class="slidecontainer">
+                        <div>Video 2 volume: {this.state.video2volume}</div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={this.state.video2volume}
+                            onChange={this.handleVolumeChange}
+                            class="slider"
+                            id="volumeVideo2Range"/>
+                    </div>
                     <div className='error'>{this.state.error !== '' ? this.state.error : ''}</div>
                 </div>
-                <div className="hidden-video" ref={(r) => { this.youtubePlayerAnchor2 = r }}></div>
+                <div id="vocal-video" className="hidden-video" ref={(r) => { this.youtubePlayerAnchor2 = r }}></div>
             </div>
         )
     }
@@ -266,3 +374,7 @@ export default VideoDetail
 // https://stackoverflow.com/questions/42716093/youtube-api-websockets-make-sure-two-videos-are-in-sync-video-1-pauses-when-v?rq=1
 
 // https://stackoverflow.com/questions/36403101/toggle-class-in-react/36404061
+
+// https://stackoverflow.com/questions/5226285/settimeout-in-for-loop-does-not-print-consecutive-values
+// https://www.w3schools.com/howto/howto_js_rangeslider.asp
+// https://stackoverflow.com/questions/36122034/jsx-react-html5-input-slider-doesnt-work
