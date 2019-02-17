@@ -168,6 +168,10 @@ class VideoDetail extends Component<ContextRouter, State> {
             // time video1 55 - stop video2
             // time video1 56 - play - time video2 47
             // time video1 81 - stop video2
+
+            // 1p46 - play 1p34
+            // 2p10 - play 1p57
+
             // volume video1 80% - volume video2 90%
 
         });
