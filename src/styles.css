@@ -43,6 +43,11 @@ body {
   left: 36px;
   top: 36px;
 }
+.right .bm-burger-button {
+  left: initial;
+  right: 36px;
+}
+
 
 /* Color/shape of burger icon bars */
 .bm-burger-bars {
