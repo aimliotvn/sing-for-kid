@@ -8,7 +8,7 @@ import SideBar from "./sidebar";
 
 function App() {
     return (
-        <div id="App" className="right">
+        <div id="App">
             <SideBar pageWrapId={"page-wrap"} outerContainerId={"App"} />
             <Switch>
                 <Route path='/:id' component={VideoDetail} />

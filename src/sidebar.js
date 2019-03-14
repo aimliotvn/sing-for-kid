@@ -4,9 +4,9 @@ import { slide as Menu } from "react-burger-menu";
 export default props => {
     return (
         // Pass on our props
-        <Menu {...props} right>
+        <Menu crossButtonClassName={ "burger-menu" } {...props}>
             <a className="menu-item" href="/j7r2ycpnu8k">
-                Song 1
+                Đếm sao
       </a>
 
             <a className="menu-item" href="/8Y2T3SOlbmg">

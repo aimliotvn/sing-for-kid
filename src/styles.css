@@ -1,36 +1,32 @@
-html,
-body {
+html, body {
   margin: 0;
 }
 
 #App {
-  font-family: sans-serif;
-
-  /* Give app full page to work with */
+  font-family: sans-serif;  /* Give app full page to work with */
   height: 100vh;
 }
 
 #page-wrap {
-  text-align: center;
-
-  /* Prevent sidebar from showing a scrollbar on page */
+  text-align: center;  /* Prevent sidebar from showing a scrollbar on page */
   overflow: auto;
 }
 
 /* Individual item */
 .bm-item {
-  display: inline-block;
-
-  /* Our sidebar item styling */
+  display: inline-block;  /* Our sidebar item styling */
   text-decoration: none;
-  margin-bottom: 10px;
-  color: #d1d1d1;
+  margin-bottom: 10px;  /*color: #d1d1d1;*/
+  color: #ffffff;
   transition: color 0.2s;
+  font-size: 2em;
+  opacity: 0.8;
 }
 
 /* Change color on hover */
 .bm-item:hover {
   color: white;
+  opacity: 1;
 }
 
 /* The rest copied directly from react-burger-menu docs */
@@ -43,11 +39,11 @@ body {
   left: 36px;
   top: 36px;
 }
+
 .right .bm-burger-button {
   left: initial;
   right: 36px;
 }
-
 
 /* Color/shape of burger icon bars */
 .bm-burger-bars {
@@ -56,13 +52,16 @@ body {
 
 /* Position and sizing of clickable cross button */
 .bm-cross-button {
-  height: 24px;
-  width: 24px;
+  height: 35px !important;
+  width: 35px !important;
 }
 
 /* Color/shape of close button cross */
 .bm-cross {
-  background: #bdc3c7;
+  background: white;
+  height: 20px !important;
+  top: 1px;
+  right: 2px;
 }
 
 /* General sidebar styles */
@@ -85,4 +84,35 @@ body {
 /* Styling of overlay */
 .bm-overlay {
   background: rgba(0, 0, 0, 0.3);
+}
+
+.burger-menu {
+  display: block !important;
+  top: 0px !important;
+  right: 25px !important;
+  border-radius: 50%;
+  background-color: #FF5722 !important;
+  mix-blend-mode: normal !important;
+  opacity: 0.8;
+  cursor: pointer;
+  outline: none;
+  z-index: 1046;
+  box-shadow: none;
+  text-decoration: none;
+  text-align: center;
+  padding: 0;
+  margin: 0 !important;
+  color: #fff;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 40px;
+  min-height: 0;
+  line-height: 40px;
+  font-family: Arial;
+  transition: opacity .3s transform .3s;
+  transform: translateY(50%) translateZ(1px);
+}
+
+.burger-menu:hover {
+  opacity: 1;
 }
