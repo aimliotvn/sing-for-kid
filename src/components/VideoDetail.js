@@ -47,30 +47,31 @@ class VideoDetail extends Component < ContextRouter, State > {
                 "time": 24,
                 "video2": {
                     "time": 31,
-                    "action": "play"
+                    "action": 0
                 }
             }, {
                 "time": 44,
                 "video2": {
                     "time": 0,
-                    "action": "pause"
+                    "action": 1
                 }
             }, {
                 "time": 47,
                 "video2": {
                     "time": 56,
-                    "action": "play"
+                    "action": 0
                 }
             }, {
                 "time": 72,
                 "video2": {
                     "time": 0,
-                    "action": "pause"
+                    "action": 1
                 }
             }],
 
             video1volume: 0,
             video2volume: 0,
+            updateMode: false,
 
         };
     }
@@ -187,13 +188,9 @@ class VideoDetail extends Component < ContextRouter, State > {
         var that = this;
         var playButton = document.getElementById("play-button");
         playButton.addEventListener("click", function() {
-
             triggerByClick = true;
             player2.playVideo();
             that.proceed();
-
-
-
         });
 
         var pauseButton = document.getElementById("pause-button");
@@ -211,7 +208,6 @@ class VideoDetail extends Component < ContextRouter, State > {
     }
 
     handleChange = (e) => {
-        debugger;
         e.preventDefault(e);
         if (e.target.id === "video1time") {
             this.setState({
@@ -257,16 +253,18 @@ class VideoDetail extends Component < ContextRouter, State > {
             time: 0,
             video2: {
                 time: 0,
-                action: actions[0]
+                action: 0
             }
         }
         syncObj.time = video1time;
         syncObj.video2.time = video2time;
-        syncObj.video2.action = actions[actionType] ? actions[actionType] : syncObj.video2.action;
+        // syncObj.video2.action = actions[actionType] ? actions[actionType] : syncObj.video2.action;
+        syncObj.video2.action = actionType;
         timeSeries.push(syncObj);
         this.setState({
             timeSeries: timeSeries
         });
+        this.clearInput();
     }
 
     proceed = () => {
@@ -295,10 +293,10 @@ class VideoDetail extends Component < ContextRouter, State > {
     }
 
     syncVideo = (time, action) => {
-        if (action === "play") {
+        if (action === 0) {
             this.playVideoAt(time);
         }
-        if (action === "pause") {
+        if (action === 1) {
             this.pauseVideo();
         }
     }
@@ -316,7 +314,96 @@ class VideoDetail extends Component < ContextRouter, State > {
         p.stopVideo();
     }
 
+    changeTimeSeries = (e) => {
+
+        var idx = parseInt(e.target.id);
+        const {
+            timeSeries,
+            video1time,
+            video2time
+        } = this.state;
+        let rowIndex = document.getElementById("update-row-idx");
+        let actiontype = document.getElementById("actionType");
+
+        rowIndex.innerText = idx;
+        actiontype.value = timeSeries[idx].video2.action;
+        this.setState({
+            updateMode: true,
+            actionType: parseInt(actiontype.value),
+            video1time: parseInt(timeSeries[idx].time),
+            video2time: parseInt(timeSeries[idx].video2.time)
+        });
+    }
+
+    updateTimeSeries = () => {
+        if (!this.validateInput()) {
+            return;
+        }
+        const {
+            timeSeries,
+            video1time,
+            video2time,
+            actionType
+        } = this.state;
+        let rowIndex = document.getElementById("update-row-idx");
+        const idx = parseInt(rowIndex.innerHTML);
+        timeSeries[idx].time = video1time;
+        timeSeries[idx].video2.time = video2time;
+        timeSeries[idx].video2.action = actionType;
+        this.setState({
+            timeSeries: timeSeries,
+            updateMode: false
+        });
+
+        this.clearInput();
+    }
+
+    validateInput = () => {
+
+        let video1Time = document.getElementById("video1time");
+        let video2Time = document.getElementById("video2time");
+        debugger;
+
+        if (isNaN(parseInt(video1Time.value, 10))) {
+            return false;
+        }
+        if (video2Time !== null && (isNaN(parseInt(video2Time.value, 10)) || parseInt(video1Time.value, 10) >= parseInt(video2Time.value, 10))) {
+            return false;
+        }
+        return true;
+    }
+
+    clearInput = () => {
+        let video1Time = document.getElementById("video1time");
+        let video2Time = document.getElementById("video2time");
+        video1Time.value = 0;
+        if (video2Time !== null) {
+            video2Time.value = 0;
+        }
+
+        this.setState({
+            video1time: parseInt(video1Time.value)
+        });
+        if (video2Time !== null) {
+            this.setState({
+                video2time: parseInt(video2Time.value)
+            });
+        }
+    }
+
+    toggleVideo2 = () => {
+        var x = document.getElementById("lyric-video");
+        if (x.style.display == "none" || x.style.display == "") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+
     render() {
+        const {
+            timeSeries
+        } = this.state;
         return (
 
             <div className="video-container">
@@ -332,11 +419,11 @@ class VideoDetail extends Component < ContextRouter, State > {
         S74.299,143,128.75,143s98.75,44.299,98.75,98.75S183.201,340.5,128.75,340.5z"/>
                     </defs>
                 </svg>
-                <div className="time-series">{this.state.timeSeries.length !== 0 ? JSON.stringify(this.state.timeSeries) : ''}</div>
                 <div id="vocal-video" className="vocal-video hidden-video" ref={(r) => { this.youtubePlayerAnchor2 = r }}></div>
                 <div className="player">
+                    <span id='update-row-idx' className='display-none'></span>
                     <label className="label">Video 1 Time</label>
-                    <input id="video1time" type='text' className='time-input' onChange={this.handleChange}/>
+                    <input value={this.state.video1time} autoComplete="off" id="video1time" type='text' className='time-input' onChange={this.handleChange}/>
                     {/* <div>{this.state.actionType}</div> */}
                     <div className="action-video-container">
                         <div className="action-type">
@@ -347,19 +434,22 @@ class VideoDetail extends Component < ContextRouter, State > {
                             </select>
                         </div>
                         
-                        {this.state.actionType === 0 &&
+                        {this.state.actionType == 0 &&
                             (
                             <div className="video2-input">
                                 <label className="label">Video 2 Time</label>
-                                <input id="video2time" type='text' className='time-input' onChange={this.handleChange}/>
+                                <input value={this.state.video2time} autoComplete="off" id="video2time" type='text' className='time-input' onChange={this.handleChange}/>
                             </div>
                             )
                         }    
                     </div>
                     <button id="add-button" className="add-button button" onClick={this.addTimeSeries}>Add</button>
+                    <button onClick={this.updateTimeSeries} id="update-button" className={this.state.updateMode ? 'display-block update-button button' : 'display-none'}>Update</button>
                     <button id="play-button" className="play-button button">Play</button>
                     <button id="pause-button" className="pause-button button">Pause</button>
-                    <button id="toggle-button" className="toggle-button button">Toggle</button>
+                    <button onClick={this.toggleVideo2} id="toggle-button" className="toggle-button button">Toggle</button>
+                    <button id="clear-button" className="clear-button button">Clear</button>
+                    <button id="info-button" className="info-button button">Info</button>
                     <div className="slidecontainer">
                         <label className="label">Video 1 Volume: {this.state.video1volume}</label>
                         <input
@@ -385,6 +475,14 @@ class VideoDetail extends Component < ContextRouter, State > {
                     <div className='error'>{this.state.error !== '' ? this.state.error : ''}</div>
                 </div>
                 <div id="lyric-video" className="lyric-video" ref={(r) => { this.youtubePlayerAnchor = r }}></div>
+                <div className="time-series">
+                    {timeSeries.map((item, idx) =>
+                        <div id={idx} onClick={this.changeTimeSeries} className="btn"><i className={item.video2.action === 0 ? 'fa fa-play' : 'fa fa-pause'}></i> {JSON.stringify(item.time)} (Video1)
+                        {item.video2.action === 0 ? ' - ' + JSON.stringify(item.video2.time) + ' (Video2)' : ''}
+                        </div>
+                        
+                    )}
+                </div>
             </div>
         )
     }
