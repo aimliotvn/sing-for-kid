@@ -392,12 +392,24 @@ class VideoDetail extends Component < ContextRouter, State > {
     }
 
     toggleVideo2 = () => {
-        var x = document.getElementById("lyric-video");
-        if (x.style.display == "none" || x.style.display == "") {
-            x.style.display = "block";
-        } else {
+        this.toggle("lyric-video");
+    }
+
+    toggleInfo = () => {
+        this.toggle("time-series");
+    }
+
+    toggle = (elm) => {
+        var x = document.getElementById(elm);
+        if (x.style.display == "block" || x.style.display == "") {
             x.style.display = "none";
+        } else {
+            x.style.display = "block";
         }
+    }
+
+    clearTimeSeries = () => {
+        this.setState({timeSeries: []});
     }
 
     render() {
@@ -443,13 +455,13 @@ class VideoDetail extends Component < ContextRouter, State > {
                             )
                         }    
                     </div>
-                    <button id="add-button" className="add-button button" onClick={this.addTimeSeries}>Add</button>
-                    <button onClick={this.updateTimeSeries} id="update-button" className={this.state.updateMode ? 'display-block update-button button' : 'display-none'}>Update</button>
                     <button id="play-button" className="play-button button">Play</button>
                     <button id="pause-button" className="pause-button button">Pause</button>
-                    <button onClick={this.toggleVideo2} id="toggle-button" className="toggle-button button">Toggle</button>
-                    <button id="clear-button" className="clear-button button">Clear</button>
-                    <button id="info-button" className="info-button button">Info</button>
+                    <button id="add-button" className="add-button button" onClick={this.addTimeSeries}>Add</button>
+                    <button onClick={this.updateTimeSeries} id="update-button" className={this.state.updateMode ? 'display-block update-button button' : 'display-none'}>Update</button>
+                    <button onClick={this.toggleVideo2} id="toggle-button" className="toggle-button button">Toggle Video</button>
+                    <button onClick={this.toggleInfo} id="info-button" className="info-button button">Toggle Info</button>
+                    <button onClick={this.clearTimeSeries} id="clear-button" className="clear-button button">Clear</button>
                     <div className="slidecontainer">
                         <label className="label">Video 1 Volume: {this.state.video1volume}</label>
                         <input
@@ -475,7 +487,7 @@ class VideoDetail extends Component < ContextRouter, State > {
                     <div className='error'>{this.state.error !== '' ? this.state.error : ''}</div>
                 </div>
                 <div id="lyric-video" className="lyric-video" ref={(r) => { this.youtubePlayerAnchor = r }}></div>
-                <div className="time-series">
+                <div id="time-series" className="time-series">
                     {timeSeries.map((item, idx) =>
                         <div id={idx} onClick={this.changeTimeSeries} className="btn"><i className={item.video2.action === 0 ? 'fa fa-play' : 'fa fa-pause'}></i> {JSON.stringify(item.time)} (Video1)
                         {item.video2.action === 0 ? ' - ' + JSON.stringify(item.video2.time) + ' (Video2)' : ''}
