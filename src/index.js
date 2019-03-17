@@ -11,8 +11,8 @@ function App() {
         <div id="App">
             <SideBar pageWrapId={"page-wrap"} outerContainerId={"App"} />
             <Switch>
-          		<Route exact path="/" component={() => <Redirect to="/j7r2ycpnu8k" />}/>
                 <Route path='/:id' component={VideoDetail} />
+                <Route exact path="/" component={() => <Redirect to="/j7r2ycpnu8k" />}/>
             </Switch>
         </div>
     );
