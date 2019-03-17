@@ -488,6 +488,7 @@ class VideoDetail extends Component < ContextRouter, State > {
                 </div>
                 <div id="lyric-video" className="lyric-video" ref={(r) => { this.youtubePlayerAnchor = r }}></div>
                 <div id="time-series" className="time-series">
+                    <h3>Default Time Series</h3>
                     {timeSeries.map((item, idx) =>
                         <div id={idx} onClick={this.changeTimeSeries} className="btn"><i className={item.video2.action === 0 ? 'fa fa-play' : 'fa fa-pause'}></i> {JSON.stringify(item.time)} (Video1)
                         {item.video2.action === 0 ? ' - ' + JSON.stringify(item.video2.time) + ' (Video2)' : ''}
