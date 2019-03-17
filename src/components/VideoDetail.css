@@ -30,7 +30,7 @@
 }
 
 .player {
-  background: #f06d06;
+  /*background: #f06d06;*/
   border-radius: 5px;
   box-shadow: 0 2px 3px rgba(10, 10, 10, .1), 0 0 0 1px rgba(10, 10, 10, .1);
   display: block;
