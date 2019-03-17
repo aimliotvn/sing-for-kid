@@ -50,7 +50,7 @@ class VideoDetail extends Component < ContextRouter, State > {
                     "action": 0
                 }
             }, {
-                "time": 44,
+                "time": 46,
                 "video2": {
                     "time": 0,
                     "action": 1
@@ -179,10 +179,14 @@ class VideoDetail extends Component < ContextRouter, State > {
 
     onPlayerReady = (e) => {
 
-        var crntVideo1Volume = player.getVolume();
+        // var crntVideo1Volume = player.getVolume();
+        var crntVideo1Volume = 0;
         this.setState({
             video1volume: crntVideo1Volume
         });
+
+        //turn off lyric video volume
+        this.setPlayerVolume(player, crntVideo1Volume);
 
         // bind events
         var that = this;
@@ -230,14 +234,18 @@ class VideoDetail extends Component < ContextRouter, State > {
             this.setState({
                 video2volume: targetVolume
             });
-            player2.setVolume(targetVolume);
+            this.setPlayerVolume(player2, targetVolume);
         }
         if (e.target.id === "volumeVideo1Range") {
             this.setState({
                 video1volume: targetVolume
             });
-            player.setVolume(targetVolume);
+            this.setPlayerVolume(player, targetVolume);
         }
+    }
+
+    setPlayerVolume = (p, v) => {
+        p.setVolume(v);
     }
 
     addTimeSeries = () => {
@@ -463,17 +471,6 @@ class VideoDetail extends Component < ContextRouter, State > {
                     <button onClick={this.toggleInfo} id="info-button" className="info-button button">Toggle Info</button>
                     <button onClick={this.clearTimeSeries} id="clear-button" className="clear-button button">Clear</button>
                     <div className="slidecontainer">
-                        <label className="label">Video 1 Volume: {this.state.video1volume}</label>
-                        <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={this.state.video1volume}
-                            onChange={this.handleVolumeChange}
-                            className="slider"
-                            id="volumeVideo1Range"/>
-                    </div>
-                    <div className="slidecontainer">
                         <label className="label">Video 2 Volume: {this.state.video2volume}</label>
                         <input
                             type="range"
@@ -483,6 +480,17 @@ class VideoDetail extends Component < ContextRouter, State > {
                             onChange={this.handleVolumeChange}
                             className="slider"
                             id="volumeVideo2Range"/>
+                    </div>
+                    <div className="slidecontainer">
+                        <label className="label">Video 1 Volume: {this.state.video1volume}</label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={this.state.video1volume}
+                            onChange={this.handleVolumeChange}
+                            className="slider"
+                            id="volumeVideo1Range"/>
                     </div>
                     <div className='error'>{this.state.error !== '' ? this.state.error : ''}</div>
                 </div>
