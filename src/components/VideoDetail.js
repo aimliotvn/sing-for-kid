@@ -8,6 +8,7 @@ import type {
 } from 'react-router-dom'
 import './VideoDetail.css'
 import $ from 'jquery'
+import 'Player'
 
 let loadYT
 let player
@@ -504,6 +505,9 @@ class VideoDetail extends Component < ContextRouter, State > {
                         
                     )}
                 </div>
+                <div id="container"></div>
+                <Player sources='{"type": "video/mp4", "src": "//vjs.zencdn.net/v/oceans.mp4"}' />,
+  document.getElementById('container')
             </div>
         )
     }
